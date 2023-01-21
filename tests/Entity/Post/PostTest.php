@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Entity;
+namespace App\Tests\Entity\Post;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use App\Entity\Post;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PostTest extends KernelTestCase
@@ -18,7 +18,6 @@ class PostTest extends KernelTestCase
     }
     public function getEntityPost(): Post
     {
-        $date = new \DateTimeImmutable();
         $post = new Post();
         $post->setTitle(title: 'My First Post');
         $post->setSlug(slug: 'my-first-post');
@@ -200,14 +199,15 @@ class PostTest extends KernelTestCase
     }
     /**
      * @test
-     * A tester avec une vraie base de données
      */
-    /*public function today_is_set_automatically_when_new_post_is_create(): void
+    public function createdAt_is_create_when_post_is_created(): void
     {
         $post = $this->getEntityPost();
         self::assertNotNull($post->getCreatedAt());
+
         $this->assert_validation_errors_count(entity: $post, count: 0);
-    }*/
+    }
+
     /** @test */
     public function updated_at_is_less_than_created_at(): void
     {
