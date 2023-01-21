@@ -72,14 +72,13 @@ class Post
     )]
     private ?\DateTimeImmutable $publishedAt = null;
 
-    #[ORM\PrePersist]
-    public function onPrePersist(): void
+    public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
     }
 
     #[ORM\PreUpdate]
-    public function onPreUpdate(): void
+    public function preUpdate(): void
     {
         $this->updatedAt = new \DateTime();
     }
