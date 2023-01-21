@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Post
 {
     public const STATE = ['DRAFT', 'PUBLISHED', 'ARCHIVED'];
@@ -25,7 +26,7 @@ class Post
         minMessage: 'Le titre doit faire au moins {{ limit }} caractères',
         maxMessage: 'Le titre doit faire au maximum {{ limit }} caractères')
     ]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column(length: 200)]
     #[Assert\NotBlank(message: 'Le slug est obligatoire')]
@@ -33,7 +34,7 @@ class Post
         max: 200,
         maxMessage: 'Le slug doit faire au maximum {{ limit }} caractères')
     ]
-    private ?string $slug = null;
+    private string $slug;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: 'Le statut est obligatoire')]
@@ -45,29 +46,50 @@ class Post
         choices: self::STATE,
         message: 'Le statut doit être {{ choices }}')
     ]
-    private ?string $state = Post::STATE[0];
+    private string $state = Post::STATE[0];
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $content = null;
+    #[Assert\NotBlank(message: 'Le contenu est obligatoire')]
+    private string $content;
 
     #[ORM\Column]
-    private ?bool $isPublished = null;
+    private bool $isPublished = false;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updatedAt = null;
+    #[Assert\GreaterThan(
+        propertyPath: 'createdAt',
+        message: 'La date de modification doit être supérieure à la date de création'
+    )]
+    private ?\DateTime $updatedAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\GreaterThan(
+        propertyPath: 'createdAt',
+        message: 'La date de publication doit être supérieure à la date de création'
+    )]
     private ?\DateTimeImmutable $publishedAt = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -79,7 +101,7 @@ class Post
         return $this;
     }
 
-    public function getSlug(): ?string
+    public function getSlug(): string
     {
         return $this->slug;
     }
@@ -91,7 +113,7 @@ class Post
         return $this;
     }
 
-    public function getState(): ?string
+    public function getState(): string
     {
         return $this->state;
     }
@@ -103,7 +125,7 @@ class Post
         return $this;
     }
 
-    public function getContent(): ?string
+    public function getContent(): string
     {
         return $this->content;
     }
@@ -115,7 +137,7 @@ class Post
         return $this;
     }
 
-    public function getIsPublished(): ?bool
+    public function getIsPublished(): bool
     {
         return $this->isPublished;
     }
@@ -127,7 +149,7 @@ class Post
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -139,12 +161,12 @@ class Post
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt(): ?\DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
+    public function setUpdatedAt(?\DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
 

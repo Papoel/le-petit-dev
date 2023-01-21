@@ -23,9 +23,6 @@ class PostTest extends KernelTestCase
         $post->setTitle(title: 'My First Post');
         $post->setSlug(slug: 'my-first-post');
         $post->setContent(content: 'content');
-        $post->setIsPublished(isPublished: false);
-        $post->setCreatedAt(createdAt: $date);
-        $post->setUpdatedAt(updatedAt: $date->modify(modifier: '+3 days'));
         $post->setPublishedAt(publishedAt: null);
 
         return $post;
@@ -178,7 +175,72 @@ class PostTest extends KernelTestCase
         self::assertEmpty($post->getContent());
         $this->assert_validation_errors_count(entity: $post, count: 1);
     }
+    /** @test */
+    public function is_published_is_false_by_default_when_post_is_created(): void
+    {
+        $post = $this->getEntityPost();
+        self::assertFalse($post->getIsPublished());
+        $this->assert_validation_errors_count(entity: $post, count: 0);
+    }
+    /** @test */
+    public function is_published_is_true(): void
+    {
+        $post = $this->getEntityPost();
+        $post->setIsPublished(isPublished: true);
+        self::assertTrue($post->getIsPublished());
+        $this->assert_validation_errors_count(entity: $post, count: 0);
+    }
+    /** @test */
+    public function is_published_is_false(): void
+    {
+        $post = $this->getEntityPost();
+        $post->setIsPublished(isPublished: false);
+        self::assertFalse($post->getIsPublished());
+        $this->assert_validation_errors_count(entity: $post, count: 0);
+    }
+    /**
+     * @test
+     * A tester avec une vraie base de données
+     */
+    /*public function today_is_set_automatically_when_new_post_is_create(): void
+    {
+        $post = $this->getEntityPost();
+        self::assertNotNull($post->getCreatedAt());
+        $this->assert_validation_errors_count(entity: $post, count: 0);
+    }*/
+    /** @test */
+    public function updated_at_is_less_than_created_at(): void
+    {
+        $post = $this->getEntityPost();
+        $post->setCreatedAt(createdAt: new \DateTimeImmutable());
+        $updatedAt = new \DateTime();
+        $post->setUpdatedAt(updatedAt: $updatedAt->modify(modifier: '-1 day'));
 
+        self::assertLessThan(expected: $post->getCreatedAt(), actual: $post->getUpdatedAt());
+        $this->assert_validation_errors_count(entity: $post, count: 1);
+    }
+    /** @test */
+    public function updated_at_is_greater_than_created_at(): void
+    {
+        $post = $this->getEntityPost();
+        $post->setCreatedAt(createdAt: new \DateTimeImmutable());
+        $updatedAt = new \DateTime();
+        $post->setUpdatedAt(updatedAt: $updatedAt->modify(modifier: '+1 day'));
+
+        self::assertGreaterThan(expected: $post->getCreatedAt(), actual: $post->getUpdatedAt());
+        $this->assert_validation_errors_count(entity: $post, count: 0);
+    }
+    /** @test */
+    public function published_at_is_less_than_created_at(): void
+    {
+        $post = $this->getEntityPost();
+        $post->setCreatedAt(createdAt: new \DateTimeImmutable());
+        $publishedAt = new \DateTimeImmutable();
+        $post->setPublishedAt(publishedAt: $publishedAt->modify(modifier: '-1 day'));
+
+        self::assertLessThan(expected: $post->getCreatedAt(), actual: $post->getPublishedAt());
+        $this->assert_validation_errors_count(entity: $post, count: 1);
+    }
 
 
 }
