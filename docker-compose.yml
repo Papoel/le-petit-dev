@@ -1,21 +1,57 @@
-version: '3'
+version: '3.8'
 
 services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-15}-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+  ###> doctrine/doctrine-bundle ###
+  mariadb:
+    image: mariadb:latest
+    platform: linux/x86_64
+    container_name: mariadb
+    restart: always
     volumes:
-      - db-data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: db_small_dev
+    networks:
+      - mariadb_network
+    ports:
+      - "3306:3306"
+  ###< doctrine/doctrine-bundle ###
+
+  ###> adminer ###
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: mariadb
+      ADMINER_DESIGN: dracula
+      ADMINER_PLUGINS: tables-filter
+    depends_on:
+      - mariadb
+    ports:
+      - "8085:8080"
+    networks:
+      - mariadb_network
+  ###< adminer ###
+
+  ###> MailDev ###
+  maildev:
+    image: maildev/maildev
+    container_name: maildev_small_dev
+    command: bin/maildev --web 80 --smtp 25 --hide-extensions STARTTLS
+    # MAILER_DSN=smtp://127.0.0.1:1025
+    ports:
+      - "8081:80"
+      - "1025:25"
+    restart: always
+    networks:
+      - mariadb_network
+###< MailDev ###
+
+networks:
+  mariadb_network:
 
 volumes:
-###> doctrine/doctrine-bundle ###
   db-data:
-###< doctrine/doctrine-bundle ###
