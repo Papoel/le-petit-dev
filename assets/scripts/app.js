@@ -9,5 +9,6 @@
 import '../styles/app.css';
 import 'tw-elements'
 import('@tailwindcss/forms');
+import './darkMode';
 
 console.log('Webpack est connecté !');

@@ -5,6 +5,7 @@ module.exports = {
     'assets/scripts/*.js',
     '/node_modules/tw-elements/dist/js/**/*.js',
   ],
+  darkMode: 'class', // or 'media' or 'class'
   theme: {
     extend: {},
   },

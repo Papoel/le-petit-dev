@@ -30,22 +30,14 @@ class Post
 
     #[ORM\Column(length: 200)]
     #[Assert\NotBlank(message: 'Le slug est obligatoire')]
-    #[Assert\Length(
-        max: 200,
-        maxMessage: 'Le slug doit faire au maximum {{ limit }} caractères')
-    ]
+    #[Assert\Length(max: 200, maxMessage: 'Le slug doit faire au maximum {{ limit }} caractères')]
+    #[Assert\Regex(pattern: '/^[a-z0-9]+(?:-[a-z0-9]+)*$/', message: 'Le slug n\'est pas valide')]
     private string $slug;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank(message: 'Le statut est obligatoire')]
-    #[Assert\Length(
-        max: 50,
-        maxMessage: 'Le statut doit faire au maximum {{ limit }} caractères')
-    ]
-    #[Assert\Choice(
-        choices: self::STATE,
-        message: 'Le statut doit être {{ choices }}')
-    ]
+    #[Assert\Length(max: 50, maxMessage: 'Le statut doit faire au maximum {{ limit }} caractères')]
+    #[Assert\Choice(choices: self::STATE, message: 'Le statut doit être {{ choices }}')]
     private string $state = Post::STATE[0];
 
     #[ORM\Column(type: Types::TEXT)]

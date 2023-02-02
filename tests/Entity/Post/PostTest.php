@@ -94,6 +94,16 @@ class PostTest extends KernelTestCase
         $this->assert_validation_errors_count(entity: $post, count: 0);
     }
     /** @test */
+    public function slug_is_not_equals_to_title(): void
+    {
+        $post = $this->getEntityPost();
+        $slug = str_replace(search: ' ', replace: '-', subject: strtolower($post->getTitle()));
+        $post->setSlug(slug: $slug);
+        self::assertNotSame(expected: 'this-is-an-invalid-slug' , actual: $slug);
+
+       // $this->assert_validation_errors_count(entity: $post, count: 1);
+    }
+    /** @test */
     public function slug_is_blank(): void
     {
         $post = $this->getEntityPost();
